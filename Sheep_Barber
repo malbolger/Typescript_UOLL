@@ -34,8 +34,8 @@ interface InGameObject {
 let sheerBool = true;
 let MOBILELIST = [];  
 let FoundEntity = null;
-let CompareSheepSerial = (mobileList: InGameObject[], tameable: InGameObject) => (mobileList.find(mobile => mobile.serial === tameable.serial));
-let CompareSheepListFind = (tameableTypeList: number[], foundMobile: InGameObject) => (tameableTypeList.find(tameable => tameable === foundMobile.graphic));
+let CompareSheepSerial = (mobileList: InGameObject[], sheep: InGameObject) => (mobileList.find(mobile => mobile.serial === sheep.serial));
+let CompareSheepListFind = (sheepTypeList: number[], foundMobile: InGameObject) => (sheepTypeList.find(sheep => sheep === foundMobile.graphic));
 
 //Our Macro Loop
 while (sheerBool) {
@@ -74,16 +74,16 @@ function GetMobileInfo(mobileScanRange: number) {
       if (CompareSheepListFind(TYPESOFSHEEP, FoundEntity)) {
         //Check if tamable serial is on the List already
         if (!CompareSheepSerial(MOBILELIST, FoundEntity)) {
-          //Check if the tameable is in range
+          //Check if the sheep is in range
           if (CheckDistanceFromPlayer(FoundEntity) < mobileScanRange) {
-            //Place tameable on our approved list
+            //Place sheep on our approved list
             MOBILELIST.push(FoundEntity);
           }          
         }
       }
     }
   }
-  console.log("List of tameable creatures", MOBILELIST);
+  console.log("List of creatures", MOBILELIST);
 }
 
 function MoveToTame(mobile: InGameObject) {
