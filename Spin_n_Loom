@@ -1,0 +1,35 @@
+while (true) {
+  let wool = client.findType(0xDF8, 0, player.backpack);
+  if (wool) {
+    let spinningWheel = client.findType(0x101C, 0, 0xFFFFFFFF, 0, 3);
+    if (spinningWheel) {
+      player.use(wool);
+      target.waitTargetEntity(spinningWheel);
+      sleep(1000);
+    }
+    else {
+      client.headMsg("You are not close enough to a spinning wheel", player);
+    }
+  }
+  else {
+    break;
+  }
+}
+while (true) {
+  let yarn = client.findType(0xE1D, 0, player.backpack);
+  if (yarn) {
+    let loom = client.findType(0x1062, 0, 0xFFFFFFFF, 0, 3);
+    if (loom) {
+      player.use(yarn);
+      target.waitTargetEntity(loom);
+      sleep(1000);
+    }
+    else {
+      client.headMsg("You are not close enough to a loom", player);
+    }
+  }
+  else {
+    break;
+  }
+}
+client.headMsg("All Finished making cloth!", player);
