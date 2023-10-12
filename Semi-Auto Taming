@@ -1,0 +1,206 @@
+let targetMobile : InGameObject = target.query(false);
+let isTamed = false
+let tamingBool = true;
+let tameRange = 2;
+//let useMovement = false;
+let useMovement = true;
+
+//Responses given by the server. Set to match your needs.
+enum JournalResponse {
+  YOU_FAIL = "You fail to tame",
+  YOU_TAME = "It seems to accept",
+  YOU_ANGER = "You anger the beast",
+  TAME_ALREADY = "That animal looks tame",
+  NO_CHALLENGE = "That wasn't even challenging",
+  TOO_MANY_FOLLOWERS = "You have too many followers",
+  CANNOT_BE_TAMED = "That creature cannot",
+  TOO_FAR = "too far away"
+}
+
+//interface of object information given in game
+interface InGameObject {
+  name?: Mobile["name"];
+  type?: string;
+  serial?: number
+  x: number;
+  y: number;
+  z: number;
+  graphic: number;
+  hue: number;
+}
+
+while (!isTamed) {
+  let tamingTarget = client.findObject(targetMobile.serial);
+  if (useMovement) {
+    MoveToTame(tamingTarget);
+  }
+  TameMobile(tamingTarget);
+  sleep(50);
+}
+
+function TameMobile(mobile: InGameObject) {
+  let tameName = mobile.name;
+  //let isTamed = false;
+
+  while (!isTamed) {
+    if (player.followers < player.maxFollowers) {
+      if (CheckDistanceFromPlayer(mobile) <= tameRange) {
+        console.log("Taming:", tameName, mobile.serial)
+        journal.clear();
+        player.useSkill("AnimalTaming", mobile.serial)
+      }
+      else {
+        if (useMovement) {
+          if (mobile.serial != null && mobile.x > 0 && mobile.y > 0)
+            console.log("Moving Closer to:", mobile.serial)
+          MoveToTame(mobile);
+        }
+      }
+    }
+    else {
+      client.headMsg(">>Too Many Followers<<", player);
+      return;
+    }
+
+    let TIMEOUT = 40;
+    let LOOPSLEEP = 500;
+
+    //Journal wait loop
+    for (let i = 0; i < TIMEOUT; i++) {
+      if (journal.containsText(JournalResponse.YOU_TAME, mobile.name)) {
+        isTamed = true;
+        return;
+      }
+      if (journal.containsText(JournalResponse.NO_CHALLENGE, "System")) {
+        isTamed = true;
+        return;
+      }
+      if (journal.containsText(JournalResponse.TAME_ALREADY, mobile.name)) {
+        isTamed = true;
+        return;
+      }
+      if (journal.containsText(JournalResponse.TOO_MANY_FOLLOWERS, "System")) {
+        client.headMsg(">>Too Many Followers<<", player);
+        isTamed = true;
+        break;
+      }
+      if (journal.containsText(JournalResponse.YOU_FAIL, mobile.name)) {
+        return;
+      }
+      if (journal.containsText(JournalResponse.CANNOT_BE_TAMED, mobile.name)) {
+        isTamed = true;
+        return;
+      }
+      if (journal.containsText(JournalResponse.TOO_FAR, mobile.name)) {
+        return;
+      }
+      //Move close to tame
+      if (CheckDistanceFromPlayer(mobile) > 2) {
+        if (useMovement) {
+          console.log("Moving to tame")
+          MoveToTame(mobile)
+          break;
+        }
+      }
+    }
+    sleep(LOOPSLEEP);
+  }
+
+}
+
+
+function CheckHeightFromPlayer(mobile: InGameObject) {
+  let distanceZ = player.z - mobile.z;
+
+  if (distanceZ < 0) {
+    distanceZ = mobile.z - player.z;
+  }
+  return distanceZ;
+
+}
+
+function CheckDistanceFromPlayer(mobile: InGameObject) {
+  let distanceX = player.x - mobile.x;
+  let distanceY = player.y - mobile.y;
+
+  if (distanceX < 0) {
+    distanceX = mobile.x - player.x;
+  }
+  if (distanceY < 0) {
+    distanceY = mobile.y - player.y;
+  }
+
+  if (distanceX > distanceY) {
+    //console.log(distanceX, distanceY)
+    return distanceX;
+  }
+  else {
+    //console.log(distanceX, distanceY)
+    return distanceY;
+  }
+}
+
+function MoveToTame(mobile: InGameObject) {
+
+  let distanceBool = true;
+  let ewBool = false;
+  let nsBool = false
+
+  while (distanceBool) {
+    let myX = player.x;
+    let myY = player.y;
+
+    let mobileX = mobile.x;
+    let mobileY = mobile.y;
+
+    let distanceEW = player.x - mobileX;
+    let distanceNS = player.y - mobileY;
+
+    console.log("Moving to:", mobile.name, mobile.serial)
+    sleep(50);
+    if ((myX > mobileX && myY > mobileY) && (distanceEW > tameRange && distanceNS > tameRange)) {
+      player.walk(Directions.Up);
+      continue;
+    }
+    else if ((myX < mobileX && myY < mobileY) && (distanceEW < -tameRange && distanceNS < -tameRange)) {
+      player.walk(Directions.Down);
+      continue;
+    }
+    else if ((myX > mobileX && myY < mobileY) && (distanceEW > tameRange && distanceNS < -tameRange)) {
+      player.walk(Directions.Left);
+      continue;
+    }
+    else if ((myX < mobileX && myY > mobileY) && (distanceEW < -tameRange && distanceNS > tameRange)) {
+      player.walk(Directions.Right);
+      continue;
+    }
+
+    if (myX > mobileX && distanceEW > tameRange) {
+      player.walk(Directions.West);
+      continue;
+    }
+    else if (myX < mobileX && distanceEW < -tameRange) {
+      player.walk(Directions.East);
+      continue;
+    }
+    else {
+      ewBool = true;
+    }
+
+    if (myY > mobileY && distanceNS > tameRange) {
+      player.walk(Directions.North);
+      continue;
+    }
+    else if (myY < mobileY && distanceNS < -tameRange) {
+      player.walk(Directions.South);
+      continue;
+    }
+    else {
+      nsBool = true;
+    }
+    if (ewBool && nsBool) {
+      distanceBool = false;
+    }
+  }
+  console.log("At location");
+}
