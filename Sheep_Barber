@@ -1,0 +1,230 @@
+//---------------------------------------------//
+//--------------------CONFIG-------------------//
+//---------------------------------------------//
+
+let globalTimeout = 1000; //Timeout between actions
+let mobileScanRange = 15; //Range to scan for sheep
+let walkTimeoutLoops = 5000; //How far we can walk before we look for a new target
+let sheerRange = 2; //How far away we can be to sheer
+let TYPESOFSHEEP = [0xCF]; //Types of mobiles to sheer (graphic).
+
+//---------------------------------------------//
+//---------------ONLY EDIT BELOW---------------//
+//---------------IF YOU KNOW WHAT--------------//
+//-----------------YOU'RE DOING----------------//
+//---------------------------------------------//
+
+client.headMsg("Select your blade, Barber", player);
+let myBlade = target.query(false);
+client.headMsg("Blade set", player);
+sleep(globalTimeout);
+
+//interface of object information given in game
+interface InGameObject {
+  name?: Mobile["name"];
+  type?: string;
+  serial?: number
+  x: number;
+  y: number;
+  z: number;
+  graphic: number;
+  hue: number;
+}
+
+let sheerBool = true;
+let MOBILELIST = [];  
+let FoundEntity = null;
+let CompareSheepSerial = (mobileList: InGameObject[], tameable: InGameObject) => (mobileList.find(mobile => mobile.serial === tameable.serial));
+let CompareSheepListFind = (tameableTypeList: number[], foundMobile: InGameObject) => (tameableTypeList.find(tameable => tameable === foundMobile.graphic));
+
+//Our Macro Loop
+while (sheerBool) {
+  //Check Taming skill and set taming list accordingly
+  sleep(globalTimeout);
+  //If we don't have a list to tame, get one
+  if (MOBILELIST.length == 0) {
+    GetMobileInfo(mobileScanRange);
+  }
+  //If we got a list, move to and tame them.
+  if (MOBILELIST.length > 0) {
+    MoveToTame(MOBILELIST[0]);
+  }
+  if (MOBILELIST.length > 0) {
+    SheerSheep(MOBILELIST[0]);
+  }
+}
+
+function SheerSheep(mobile: InGameObject) {
+  player.use(myBlade);
+  target.waitTargetEntity(mobile.serial);
+  sleep(globalTimeout)
+  MOBILELIST = MOBILELIST.slice(1, MOBILELIST.length);
+}
+
+function GetMobileInfo(mobileScanRange: number) {
+  //Clear our list incase of leftover items
+  MOBILELIST = [];
+
+  console.log("scanning mobiles");
+  for (let i = 0; i < 50; i++) {
+    //FoundEntity = client.selectEntity(SearchEntityOptions.Gray, SearchEntityRangeOptions.Next, SearchEntityTypeOptions.NonHuman, false);
+    FoundEntity = client.selectEntity(SearchEntityOptions.Any, SearchEntityRangeOptions.Next, SearchEntityTypeOptions.NonHuman, false)
+    if (FoundEntity) {
+      //Check Type of tamable is on our list
+      if (CompareSheepListFind(TYPESOFSHEEP, FoundEntity)) {
+        //Check if tamable serial is on the List already
+        if (!CompareSheepSerial(MOBILELIST, FoundEntity)) {
+          //Check if the tameable is in range
+          if (CheckDistanceFromPlayer(FoundEntity) < mobileScanRange) {
+            //Place tameable on our approved list
+            MOBILELIST.push(FoundEntity);
+          }          
+        }
+      }
+    }
+  }
+  console.log("List of tameable creatures", MOBILELIST);
+}
+
+function MoveToTame(mobile: InGameObject) {
+
+  let distanceBool = true;
+  let ewBool = false;
+  let nsBool = false
+
+  let loopCount = 0;
+
+  while (distanceBool) {
+    let myX = player.x;
+    let myY = player.y;
+
+    let mobileX = mobile.x;
+    let mobileY = mobile.y;
+
+    let distanceEW = player.x - mobileX;
+    let distanceNS = player.y - mobileY;
+
+    //increase our loopCount
+    loopCount++
+    //console.log("LoopCount:", loopCount);
+    
+    //If the loopCount reaches the maximum
+    //Ignore the mobile and reset.
+    if (loopCount > walkTimeoutLoops)
+    {
+      //IgnoreMobile(IgnoreList.applyILELIST, mobile);
+      console.log("Ignoring:", mobile.name, mobile.serial, "Mobiles in list:", MOBILELIST.length, "Ignored count:", IgnoreList);
+      IgnoreList.apply(mobile);
+      if (MOBILELIST.length > 1) {
+        MOBILELIST = MOBILELIST.slice(1, MOBILELIST.length);
+      }
+      else{
+        MOBILELIST = [];
+      }
+      return;
+    }
+    if (mobileX === 0 || mobileY === 0) {
+      console.log("Mobile location invalid:", "x:", mobileX, "y:", mobileY, "serial:", mobile.serial)
+      console.log("Ignoring:", mobile.name, mobile.serial, "Mobiles in list:", MOBILELIST.length, "Ignored count:", IgnoreList);
+      IgnoreList.apply(mobile);
+      if (MOBILELIST.length > 1) {
+        MOBILELIST = MOBILELIST.slice(1, MOBILELIST.length);
+      }
+      else {
+        MOBILELIST = [];
+      }
+      return;
+    }
+    console.log("Moving to:", mobile.name, mobile.serial)
+    sleep(50);
+    //TODO: CHECK DIAGONALS FIRST
+    //console.log("MyX:", myX, "MobileX:", mobileX, "MyY:", myY, "MobileY:", mobileY, "DistanceEW:", distanceEW, "DistanceNS:", distanceNS);
+    if ((myX > mobileX && myY > mobileY) && (distanceEW > sheerRange && distanceNS > sheerRange)) {
+      //client.headMsg("Walking Up", player);
+      player.walk(Directions.Up);
+      continue;
+    }
+    else if ((myX < mobileX && myY < mobileY) && (distanceEW < -sheerRange && distanceNS < -sheerRange)) {
+      //client.headMsg("Walking Down", player);
+      player.walk(Directions.Down);
+      continue;
+    }
+    else if ((myX > mobileX && myY < mobileY) && (distanceEW > sheerRange && distanceNS < -sheerRange)) {
+      //client.headMsg("Walking Left", player);
+      player.walk(Directions.Left);
+      continue;
+    }
+    else if ((myX < mobileX && myY > mobileY) && (distanceEW < -sheerRange && distanceNS > sheerRange)) {
+      //client.headMsg("Walking Right", player);
+      player.walk(Directions.Right);
+      continue;
+    }
+
+    if (myX > mobileX && distanceEW > sheerRange) {
+      //client.headMsg("Walking West", player);
+      player.walk(Directions.West);
+      continue;
+    }
+    else if (myX < mobileX && distanceEW < -sheerRange) {
+      //client.headMsg("Walking East", player);
+      player.walk(Directions.East);
+      continue;
+    }
+    else {
+      ewBool = true;
+    }
+
+    if (myY > mobileY && distanceNS > sheerRange) {
+      //client.headMsg("Walking North", player);
+      player.walk(Directions.North);
+      continue;
+    }
+    else if (myY < mobileY && distanceNS < -sheerRange) {
+      //client.headMsg("Walking South", player);
+      player.walk(Directions.South);
+      continue;
+    }
+    else {
+      nsBool = true;
+    }
+    if (ewBool && nsBool) {
+      //console.log("At Location")
+      distanceBool = false;
+    }
+  }
+  //When we get to destination we tame it
+  console.log("At location");
+}
+
+function CheckDistanceFromPlayer(mobile: InGameObject) {
+
+  let distanceX = player.x - mobile.x;
+  let distanceY = player.y - mobile.y;
+
+
+  if (distanceX < 0) {
+    distanceX = mobile.x - player.x;
+  }
+  if (distanceY < 0) {
+    distanceY = mobile.y - player.y;
+  }
+
+
+  if (distanceX > distanceY) {
+    return distanceX;
+  }
+  else {
+    return distanceY;
+  }
+}
+
+function CheckHeightFromPlayer(mobile: InGameObject) {
+  let distanceZ = player.z - mobile.z;
+
+  if (distanceZ < 0) {
+    distanceZ = mobile.z - player.z;
+  }
+
+  return distanceZ;
+
+}
