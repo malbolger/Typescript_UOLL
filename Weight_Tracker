@@ -1,0 +1,30 @@
+let yellowDifference = 100;
+let redDifference = 20;
+let oldWeight = 0;
+
+let COLOR_GREEN = 0x44;
+let COLOR_YELLOW = 0x84E;
+let COLOR_RED = 0x22;
+while (true) {
+  sleep(150);
+  if (oldWeight != player.weight) {
+    if (player.weight > player.weightMax) {
+      client.headMsg("[OVERWEIGHT]", player, COLOR_RED);
+    }
+    if (player.weightMax - player.weight <= redDifference) {
+      let sb = "[" + player.weight + "/" + player.weightMax + "]"
+      client.headMsg(sb, player, COLOR_RED);
+      oldWeight = player.weight;
+    }
+    else if (player.weightMax - player.weight <= yellowDifference) {
+      let sb = "[" + player.weight + "/" + player.weightMax + "]"
+      client.headMsg(sb, player, COLOR_YELLOW);
+      oldWeight = player.weight;
+    }
+    else {
+      let sb = "[" + player.weight + "/" + player.weightMax + "]"
+      client.headMsg(sb, player, COLOR_GREEN);
+      oldWeight = player.weight;
+    }
+  }
+}
