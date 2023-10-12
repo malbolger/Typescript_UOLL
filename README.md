@@ -7,5 +7,5 @@ This takes lists of animals sorted into skill levels, scans around you for them 
 Convient overhead everytime your weight changes with colors to warn you.( [Current Weight / Max Weight] )
 ## [Sheep Barber](https://github.com/malbolger/Typescript_UOLL/blob/main/Sheep_Barber)
 Will walk to all sheep with wool on the screen and sheer them one at a time. (USING THIS AFK IS ILLEGAL!)
-## Spin n Loom
+## [Spin n Loom](https://github.com/malbolger/Typescript_UOLL/blob/main/Spin_n_Loom)
 Will turn all of that hard earned wool into yarn and then cloth at your local tailor shop!
