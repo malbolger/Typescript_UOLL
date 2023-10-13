@@ -15,3 +15,5 @@ Will turn all of that hard earned wool into yarn and then cloth at your local ta
 Just target your practice box, the key, and make sure you got lockpicks in your bag.
 ## [Move All Container-2-Container](https://github.com/malbolger/Typescript_UOLL/blob/main/Move_All_Container-2-Container)
 Select the source container and then the destination container. This will move every item from one to another. Great for quickly offloading loot to an unsorted loot container and getting you quickly back to the hunt!
+## [Move All Type](https://github.com/malbolger/Typescript_UOLL/blob/main/Move_All_Type)
+Move all of the targeted type to a destination container. This works great to clean up your crafting mess into a trash bin!
