@@ -1,0 +1,14 @@
+client.headMsg("<<Targert Source>>", player);
+let sourceContents = (client.findObject(target.query(false)) as Item).contents;
+client.headMsg(">>Container Set<<", player);
+sleep(500);
+client.headMsg("<<Target Destination>>", player, 0x55);
+let destinationContainer = target.query(false);
+client.headMsg(">>Container Set<<", player, 0x55);
+let itemMoveDelay = 750;
+
+for (let item of sourceContents) {
+  player.moveItem(item.serial, destinationContainer);
+  sleep(itemMoveDelay);
+  console.log("Moved: ", item.name);
+}
