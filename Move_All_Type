@@ -1,0 +1,20 @@
+let itemMoveDelay = 800;  //Delay required between moving items
+
+client.headMsg("<<Target Type To Move>>", player)
+let targetItem = (client.findObject(target.query(false))as Item);
+client.headMsg(">>Target Set<<", player)
+sleep(500);
+client.headMsg("<<Target Destination>>", player)
+let destinationBag = target.query(false);
+client.headMsg(">>Destination Set<<", player)
+
+let targetType = targetItem.graphic;
+let parentContainerContents = (client.findObject(targetItem.container) as Item).contents
+
+for (let item of parentContainerContents) {
+  if (item.graphic == targetType) {
+    player.moveItem(item.serial, destinationBag);
+    sleep(itemMoveDelay);
+  }
+}
+client.headMsg(">>Moving Complete<<", player);
