@@ -1,0 +1,75 @@
+const LOCKPICK_GFX = 0x14FC; // LOCKPICK
+
+client.headMsg("Please target your lockbox", player);
+const LOCKBOX_TARGET = target.query(false);
+client.headMsg("Lockbox set!", player);
+sleep(1000);
+client.headMsg("Please target the lockbox's key", player)
+const LOCKBOX_KEY = target.query(false);
+client.headMsg("Lockbox key set!", player);
+sleep(1000);
+
+
+const MESSAGE_RED = 0x22;
+const TIMEOUT = 5000;
+const COOLDOWN_TIME = 1000;
+
+enum JournalResponse {
+  YOU_FAIL = "You are unable to pick the lock",
+  YOU_SUCCEED = "The lock quickly yields to your skill",
+  YOU_BREAK = "You broke the lockpick",
+  NOT_LOCKED = "This does not appear to be locked"
+}
+
+while (true) {
+  journal.clear();
+  pick();
+  sleep(COOLDOWN_TIME);
+}
+
+function pick() {
+  if (player.isDead)
+    return;
+
+  const LOCKPICK = client.findType(LOCKPICK_GFX, undefined, player);
+  if (!LOCKPICK) { 
+    client.headMsg('NOTHING TO PICK WITH!', player, MESSAGE_RED)
+    return;
+  }
+  client.sysMsg('Picking...')
+  player.use(LOCKPICK);
+  target.wait();
+  target.waitTargetEntity(LOCKBOX_TARGET)
+  unlock()
+}
+
+function lock() {
+  if (player.isDead)
+    return;
+  sleep(COOLDOWN_TIME);
+  player.use(LOCKBOX_KEY);
+  target.waitTargetEntity(LOCKBOX_TARGET);
+}
+
+function unlock() {
+  const response = journal.waitForTextAny([JournalResponse.YOU_SUCCEED, JournalResponse.YOU_FAIL, JournalResponse.YOU_BREAK, JournalResponse.NOT_LOCKED]);
+  switch (response) {
+    case JournalResponse.YOU_SUCCEED: {
+      //relock the container
+      lock();
+      break;
+    }
+    case JournalResponse.YOU_FAIL: {
+      //try again
+      break;
+    }
+    case JournalResponse.YOU_BREAK: {
+      //try again
+      break;
+    }
+    case JournalResponse.NOT_LOCKED: {
+      lock();
+      break;
+    }
+  }
+}
