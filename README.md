@@ -13,3 +13,5 @@ Will walk to all sheep with wool on the screen and sheer them one at a time. (US
 Will turn all of that hard earned wool into yarn and then cloth at your local tailor shop!
 ## [Lockpick Trainer](https://github.com/malbolger/Typescript_UOLL/blob/main/Lockpick_Trainer)
 Just target your practice box, the key, and make sure you got lockpicks in your bag.
+## [Move All Container-2-Container](https://github.com/malbolger/Typescript_UOLL/blob/main/Move_All_Container-2-Container)
+Select the source container and then the destination container. This will move every item from one to another. Great for quickly offloading loot to an unsorted loot container and getting you quickly back to the hunt!
