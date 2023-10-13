@@ -3,7 +3,7 @@
 //////////////////////////////////////
 let BANDAGES = 0xE21;                           //Type of clean bandage
 let actionTimeout = 2000;                       //Short timeout if action did not work.
-let bandageTimeout = 16000;                      //Timeout to look for bandage start message              
+let bandageTimeout = 20000;                      //Timeout to look for bandage start message              
 let bandageStartOverhead = "<<Bandaging>>";     //Overhead message when bandage starts
 let bandageFinsihedOverhead = ">>Finished<<";   //Overhead message when bandage finishes
 let bandageStartHue = 0x33;                     //Hue of start overhead message
