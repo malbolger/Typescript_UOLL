@@ -5,6 +5,8 @@ Add as many targets as you want to a list. This will check for distance, check f
 This takes lists of animals sorted into skill levels, scans around you for them kinds of animals, if they are found it will move ot them, tame them, and kill them with the users preferred method. (Pet,Melee,Magery)
 ## [Semi-Auto Taming](https://github.com/malbolger/Typescript_UOLL/blob/main/Semi-Auto_Taming)
 Full auto feel too icky? With this version, you press the hoykey, select your target and the script will follow and keep taming until success!
+## [Bard Trainer](https://github.com/malbolger/Typescript_UOLL/blob/main/Bard_Trainer)
+So far this will work for Peacemanking, Provocation and Musicianship. Just set the bools to 'true' for the ones you want to train.
 ## [Weight Tracker](https://github.com/malbolger/Typescript_UOLL/blob/main/Weight_Tracker)
 Convient overhead everytime your weight changes with colors to warn you.( [Current Weight / Max Weight] )
 ## [Sheep Barber](https://github.com/malbolger/Typescript_UOLL/blob/main/Sheep_Barber)
