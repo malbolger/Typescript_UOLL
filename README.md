@@ -13,6 +13,8 @@ Convient overhead everytime your weight changes with colors to warn you.( [Curre
 Will walk to all sheep with wool on the screen and sheer them one at a time. (USING THIS AFK IS ILLEGAL!)
 ## [Spin n Loom](https://github.com/malbolger/Typescript_UOLL/blob/main/Spin_n_Loom)
 Will turn all of that hard earned wool into yarn and then cloth at your local tailor shop!
+## [Hiding and Stealth Trainer](https://github.com/malbolger/Typescript_UOLL/blob/main/Hiding_Stealth_Trainer)
+Will train hiding and if you want when you reach 80 hiding it will start training stealth too! (Not tested yet!)
 ## [Lockpick Trainer](https://github.com/malbolger/Typescript_UOLL/blob/main/Lockpick_Trainer)
 Just target your practice box, the key, and make sure you got lockpicks in your bag.
 ## [Move All Container-2-Container](https://github.com/malbolger/Typescript_UOLL/blob/main/Move_All_Container-2-Container)
