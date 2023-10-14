@@ -1,6 +1,10 @@
 let instrument = [0xEB2];     //The type on instrument we use.
 let on = true;                //Is the script on?
-let coolDownTick = 10;        //Setting to skip initial wait (REDO)
+let tickTime = 1000;          //How long each tick is (1000 is 1 second).
+let itemCooldownTick = 2;     //Set to max to skip initial wait.
+let skillCooldownTick = 10;   //Set to max to skip initial wait.
+let itemCooldownMax = 2;      //Amount of seconds between item uses.
+let skillCooldownMax = 10;    //Amount of seconds betwwen skill uses.
 let waitActionTimeout = 2000; //How long before we timeout an action
 let trainPeaceBool = false;   //Do we want to train peacemaking?
 let trainProvoBool = true;    //Do we want to train provocation?
@@ -14,19 +18,19 @@ while (on) {
   //Peacemaking
   if (trainPeaceBool) {
     if (myInstrument != null) {
-      if (coolDownTick >= 10) {
+      if (skillCooldownTick >= skillCooldownMax) {
         player.useSkill(Skills.Peacemaking);
         target.waitTargetSelf(waitActionTimeout);
-        coolDownTick = 0;
+        skillCooldownTick = 0;
       }
-      coolDownTick++;
-      sleep(1000);
+      skillCooldownTick++;
+      sleep(tickTime);
     }
   }
   //Provocation
   if (trainProvoBool) {
     if (myInstrument != null) {
-      if (coolDownTick >= 10) {
+      if (skillCooldownTick >= skillCooldownMax) {
         if (provoTargetOne == null && provoTargetTwo == null) {
           client.headMsg("Provo Target One", player);
           provoTargetOne = target.query(false);
@@ -40,14 +44,18 @@ while (on) {
           player.useSkill(Skills.Provocation);
           target.waitTargetEntity(provoTargetOne);
           target.waitTargetEntity(provoTargetTwo); 
-          coolDownTick = 0;         
+          skillCooldownTick = 0;         
         }       
       }
-      coolDownTick++
-      sleep(1000);
+      skillCooldownTick++
+      sleep(tickTime);
     }
   }
   if (trainMusicBool) {
-    player.use(client.findType(instrument[0]));
+    if (itemCooldownTick >= itemCooldownMax) {
+      player.use(client.findType(instrument[0]));
+      itemCooldownTick = 0;
+    }
+    itemCooldownTick++;
   }
 }
