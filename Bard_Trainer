@@ -1,0 +1,53 @@
+let instrument = [0xEB2];     //The type on instrument we use.
+let on = true;                //Is the script on?
+let coolDownTick = 10;        //Setting to skip initial wait (REDO)
+let waitActionTimeout = 2000; //How long before we timeout an action
+let trainPeaceBool = false;   //Do we want to train peacemaking?
+let trainProvoBool = true;    //Do we want to train provocation?
+let trainMusicBool = true;    //Do we want to train musicianship?
+let provoTargetOne = null;    //Target one for provocation (leave null)
+let provoTargetTwo = null;    //Target two for provocation (leave null)
+
+
+while (on) {
+  let myInstrument = client.findType(instrument[0], undefined, player.serial);
+  //Peacemaking
+  if (trainPeaceBool) {
+    if (myInstrument != null) {
+      if (coolDownTick >= 10) {
+        player.useSkill(Skills.Peacemaking);
+        target.waitTargetSelf(waitActionTimeout);
+        coolDownTick = 0;
+      }
+      coolDownTick++;
+      sleep(1000);
+    }
+  }
+  //Provocation
+  if (trainProvoBool) {
+    if (myInstrument != null) {
+      if (coolDownTick >= 10) {
+        if (provoTargetOne == null && provoTargetTwo == null) {
+          client.headMsg("Provo Target One", player);
+          provoTargetOne = target.query(false);
+          client.headMsg("Target set!", player);
+          sleep(500);
+          client.headMsg("Provo Target Two", player);
+          provoTargetTwo = target.query(false);
+          client.headMsg("Target set!", player);
+        }
+        else {
+          player.useSkill(Skills.Provocation);
+          target.waitTargetEntity(provoTargetOne);
+          target.waitTargetEntity(provoTargetTwo); 
+          coolDownTick = 0;         
+        }       
+      }
+      coolDownTick++
+      sleep(1000);
+    }
+  }
+  if (trainMusicBool) {
+    player.use(client.findType(instrument[0]));
+  }
+}
