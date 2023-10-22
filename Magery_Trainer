@@ -1,0 +1,68 @@
+let shouldCast = true;
+let lifeThreshold = 20;
+let meditateWhenMissing = 40;
+let spellRecoveryTime = 1250;
+
+
+enum JournalMageryMessages{
+  ENTER = "enter a meditative",
+  FAIL = "fail to enter",
+  AT_PEACE = "you are at peace",
+  REGS_NEEDED = "More reagents are needed"
+}
+
+let lightningBuyRequest = []
+
+while (shouldCast) {
+  let meditateAtMana = BestMeditationLevel(player.getSkill(Skills.Meditation).value, player.intelligence)
+  let magery = (player.getSkill(Skills.Magery).value);
+  if (player.hits > lifeThreshold) {
+    if (player.mana < meditateAtMana) {
+      while (player.mana < player.maxMana) {
+        player.useSkill(Skills.Meditation)
+        if (journal.containsText(JournalMageryMessages.ENTER)) {
+          while (player.mana < player.maxMana) {
+            sleep(1000);
+          }
+        }
+        else {
+          sleep(4000);
+        }
+      }
+    }
+    if (journal.containsText(JournalMageryMessages.REGS_NEEDED)) {
+      journal.clear()
+      shouldCast = false;
+      client.headMsg(">>>Out of Regs<<<", player);
+      client.headMsg("<<<Script Off>>>", player);
+      break;
+    }
+    else if (magery < 629) {
+      player.cast(Spells.Lightning);
+      target.waitTargetSelf(6000);
+      sleep(spellRecoveryTime);
+
+    }
+    else if (magery < 829) {
+      player.cast(Spells.EnergyBolt);
+      target.waitTargetSelf(6000);
+      sleep(spellRecoveryTime);
+    }
+    else if (magery < 1000) {
+      player.cast(Spells.FlameStrike);
+      target.waitTargetSelf(6000);
+      sleep(spellRecoveryTime);
+    }
+    else {
+      client.headMsg("YOU DID IT!", player);
+      shouldCast = false;
+      break;
+    }
+  }
+}
+
+function BestMeditationLevel(meditationSkill: number, intelStat: number) {
+  let medSkillPercent = (meditationSkill / 1000);
+  let medAtMana = player.maxMana - (intelStat * medSkillPercent);
+  return medAtMana; 
+}
