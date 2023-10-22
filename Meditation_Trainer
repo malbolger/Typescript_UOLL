@@ -1,0 +1,20 @@
+let magicalWizardHatType = 0x1718;
+let theHat = client.findType(magicalWizardHatType, undefined, player.backpack);
+let itemDelay = 1000;     //length of item movement delay.
+let tickTime = 1000;      //length of time for each delay.
+let ticks = 10;           //how many ticks we are on. (We start at max)
+let maxTicks = 10;        //how many 
+
+
+
+while (true) {
+  if (ticks > maxTicks){
+    player.equip(theHat);
+    player.useSkill(Skills.Meditation);
+    sleep(itemDelay);
+    player.moveItem(theHat, player.backpack);
+    ticks = 0;
+  }
+  ticks++
+  sleep(tickTime);
+}
