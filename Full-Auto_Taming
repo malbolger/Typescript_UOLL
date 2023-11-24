@@ -39,7 +39,7 @@ enum KillType {
 /***************************/
 let mobileScanRange = 15; //How many spaces away to scan for Mobiles.
 let mobileScanHeight = 6; //How high before we ignore the mobile
-let tameRange = 2; //How close we need to be to tame.
+let tameRange = 1; //How close we need to be to tame.
 let skillRange = 5; //How far away we can use our skill.
 let followerBaseCount = 0; //Amount of followers before you start taming.(incase of tames or horse)
 let tamingGump = 0x909CC741 //Release Gump. Set to match your server.
@@ -58,18 +58,18 @@ let wantedInt = 100
 //POPULATE THESE WITH WHAT YOU WANT TO TAME
 //NAMES SHOULD BE SELF EXPLAINITORY
 
-// COWS, SHEEP, GOAT, PIG, LLAMA
-let UNDERFOURTYFIVE = [0xD8, 0xE7, 0xCF, 0xCB, 0xD1, 0xDC, 0xDF];
+// COWS, SHEEP, GOAT, PIG
+let UNDERFOURTYFIVE = [0xD8, 0xE7, 0xCF, 0xCB, 0xD1];
 
 //HINDS, TIMBERWOLVES, BOAR, COUGAR, BROWN BEAR, BLACK BEAR, PANTHER
-let FOURTYFIVETOSIXTY = [0x122, 0x3F, 0xED, 0xE1, 0xA7, 0xD3, 0xD6];
+let FOURTYFIVETOSIXTY = [0x122, 0x3F, 0xED, 0xE1, 0xA7, 0xD3, 0xD6, 0x1B, 0x19];
 
 //HINDS, TIMBERWOLVES, BOAR, COUGAR, BROWN BEAR, BLACK BEAR, PANTHER, 
 //GREY WOLF, GREAT HART 
-let SIXTYTOSEVENTYFIVE = [0x122, 0x3F, 0xED, 0xE1, 0xA7, 0xD3, 0xD6, 0x19, 0xEA];
+let SIXTYTOSEVENTYONE = [0x122, 0x3F, 0xED, 0xE1, 0xA7, 0xD3, 0xD6, 0x19, 0xEA, 0x1B, 0x19, 0xD4];
 
 //GRIZZLY BEAR, GREAT HART, BULLS
-let SEVENTYFIVETOEIGHTYFIVE = [0xD4, 0xEA, 0xE9, 0xE8];
+let SEVENTYONETOEIGHTYFIVE = [0xD4, 0xEA, 0xE9, 0xE8];
 
 //GRIZZLY BEAR, GREAT HART, BULLS
 let EIGHTYFIVETOGM = [0xD4, 0xEA, 0xE9, 0xE8];
@@ -109,6 +109,10 @@ while (tamingBool) {
   //Check Taming skill and set taming list accordingly
   CheckSkillSetList();
   sleep(500);
+  //Reset ignore list.
+  if (IGNORETAMEDLIST.length > 10) {
+    IGNORETAMEDLIST = [];
+  }
   //If we don't have a list to tame, get one
   if (MOBILELIST.length == 0) {
     GetMobileInfo(mobileScanRange);
@@ -177,18 +181,17 @@ function MoveToTame(mobile: InGameObject) {
     //increase our loopCount
     loopCount++
     //console.log("LoopCount:", loopCount);
-    
+
     //If the loopCount reaches the maximum
     //Ignore the mobile and reset.
-    if (loopCount > walkTimeoutLoops)
-    {
+    if (loopCount > walkTimeoutLoops) {
       //IgnoreMobile(IGNORETAMEDLIST, MOBILELIST, mobile);
       console.log("Ignoring:", mobile.name, mobile.serial, "Mobiles in list:", MOBILELIST.length, "Ignored count:", IGNORETAMEDLIST.length);
       IGNORETAMEDLIST.push(mobile);
       if (MOBILELIST.length > 1) {
         MOBILELIST = MOBILELIST.slice(1, MOBILELIST.length);
       }
-      else{
+      else {
         MOBILELIST = [];
       }
       return;
@@ -311,8 +314,8 @@ function TameMobile(mobile: InGameObject) {
         player.useSkill("AnimalTaming", mobile.serial)
       }
       else {
-        if(mobile.serial != null && mobile.x > 0 && mobile.y > 0)
-        console.log("Moving Closer to:", mobile.serial)
+        if (mobile.serial != null && mobile.x > 0 && mobile.y > 0)
+          console.log("Moving Closer to:", mobile.serial)
         MoveToTame(mobile);
       }
     }
@@ -334,7 +337,7 @@ function TameMobile(mobile: InGameObject) {
         tamedBool = true;
         if (shouldRelease) {
           KillTame(mobile);
-        }       
+        }
         return;
       }
       if (journal.containsText(JournalResponse.NO_CHALLENGE, "System")) {
@@ -345,7 +348,7 @@ function TameMobile(mobile: InGameObject) {
         tamedBool = true;
         if (shouldRelease) {
           KillTame(mobile);
-        }   
+        }
         return;
       }
       if (journal.containsText(JournalResponse.TAME_ALREADY, mobile.name)) {
@@ -357,7 +360,7 @@ function TameMobile(mobile: InGameObject) {
         tamedBool = true;
         if (shouldRelease) {
           KillTame(mobile);
-        }   
+        }
         return;
       }
       if (journal.containsText(JournalResponse.TOO_MANY_FOLLOWERS, "System")) {
@@ -403,12 +406,9 @@ function KillTame(mobile: InGameObject) {
   player.say("All Guard Me");
 
   if (releaseBeforeKill) {
-    //0x909CC741
-    popupMenu.request(mobile.serial)
-    popupMenu.waitUntilOpen(1000);
-    popupMenu.reply(TameContextMenu.RELEASE);
-    let gump = Gump.findOrWait(tamingGump, 3000);
-    gump.reply(2) //continue
+    let mobileName = mobile.name;
+    let releaseString = mobileName + " Release";
+    player.say(releaseString);
     sleep(1000);
   }
 
@@ -416,43 +416,55 @@ function KillTame(mobile: InGameObject) {
     //MAGERY
     case 1: {
       let thisMobile = client.findObject(mobile.serial);
+      let attacking = true;
+
       while (thisMobile) {
         if (CheckDistanceFromPlayer(mobile) > 5) {
           MoveToTame(mobile);
         }
-        player.cast(Spells.Fireball);
-        target.waitTargetEntity(mobile.serial);
-        sleep(spellRecoveryTime);
+        if (thisMobile.x > 0) {
+          player.cast(Spells.Fireball);
+          target.waitTargetEntity(mobile.serial);
+          sleep(spellRecoveryTime);
+        }
+        else {
+          attacking = false;
+          return;
+        }
       }
       break;
     }
     //MELEE
     case 2: {
-      let thisMobile = client.findObject(mobile.serial);
+      let thisMobile = client.findObject(mobile.serial) as Mobile;
       let attacking = true;
 
       while (attacking) {
-        if (thisMobile.hits != null) {
-          if (thisMobile.hits > 0) {
-            player.attack(mobile.serial);
-            sleep(5000);
+        if (thisMobile.notoriety != Notorieties.Innocent && thisMobile.notoriety != Notorieties.Ally) {
+          if (thisMobile.hits != null) {
+            if (thisMobile.x > 0) {
+              player.attack(mobile.serial);
+              MoveToTame(thisMobile);
+              sleep(500);
+            }
+            else {
+              attacking = false;
+              return;
+            }
           }
-          else {
-            attacking = false;
-            return;
-          }
-        }    
+        }
       }
       break;
     }
     //TAME
     case 3: {
       let thisMobile = client.findObject(mobile.serial);
-      while (thisMobile.hits > 0) {
+      while (thisMobile.x > 0) {
         player.say("All Kill");
         target.waitTargetEntity(mobile.serial);
         sleep(3000);
       }
+      player.say("All Follow Me");
       break;
     }
   }
@@ -472,15 +484,15 @@ function CheckSkillSetList() {
     //console.log(tamingSkill)
     TAMEABLELIST = FOURTYFIVETOSIXTY;
   }
-  else if (tamingSkill < 750) {
+  else if (tamingSkill < 710) {
     //WALRUS AND POLAR BEARS
     //console.log(tamingSkill)
-    TAMEABLELIST = SIXTYTOSEVENTYFIVE;
+    TAMEABLELIST = SIXTYTOSEVENTYONE;
   }
   else if (tamingSkill < 850) {
     //SNOW LEOPARDS AND BULLS
     //console.log(tamingSkill)
-    TAMEABLELIST = SEVENTYFIVETOEIGHTYFIVE;
+    TAMEABLELIST = SEVENTYONETOEIGHTYFIVE;
   }
   else if (tamingSkill < 1000) {
     //GREAT HEARTS AND BULLS
@@ -499,14 +511,14 @@ function CheckSkillSetList() {
   //Check Stats - Set locks
 }
 
-function IgnoreMobile(ignoreList: InGameObject[],mobileList: InGameObject[], mobile: InGameObject) {
+function IgnoreMobile(ignoreList: InGameObject[], mobileList: InGameObject[], mobile: InGameObject) {
 
-      console.log("Ignoring:", mobile.name, mobile.serial);
-      ignoreList.push(mobile);
-      if (mobileList.length > 1) {
-        mobileList = mobileList.slice(1, mobileList.length);
-      }
-      else{
-        mobileList = [];
-      }
+  console.log("Ignoring:", mobile.name, mobile.serial);
+  ignoreList.push(mobile);
+  if (mobileList.length > 1) {
+    mobileList = mobileList.slice(1, mobileList.length);
+  }
+  else {
+    mobileList = [];
+  }
 }
