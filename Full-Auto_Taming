@@ -418,7 +418,7 @@ function KillTame(mobile: InGameObject) {
       let thisMobile = client.findObject(mobile.serial);
       let attacking = true;
 
-      while (thisMobile) {
+      while (attacking) {
         if (CheckDistanceFromPlayer(mobile) > 5) {
           MoveToTame(mobile);
         }
