@@ -414,7 +414,7 @@ function KillTame(mobile: InGameObject) {
 
   switch (killTamesWith) {
     //MAGERY
-    case 1: {
+        case 1: {
       let thisMobile = client.findObject(mobile.serial);
       let attacking = true;
 
@@ -423,7 +423,7 @@ function KillTame(mobile: InGameObject) {
           MoveToTame(mobile);
         }
         if (thisMobile.x > 0) {
-          player.cast(Spells.Fireball);
+          player.cast(killSpell);
           target.waitTargetEntity(mobile.serial);
           sleep(spellRecoveryTime);
         }
