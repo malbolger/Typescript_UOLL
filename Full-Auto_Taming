@@ -49,6 +49,8 @@ let killTamesWith = KillType.MELEE; //How we want to kill our tames.
 let spellRecoveryTime = 1750; //Recovery time before another spell can be cast.
 let killSpell = Spells.Fireball; //Spell we want to kill tames with.
 let walkTimeoutLoops = 200; //How many attempted loops to get to our target before ignoring.
+let useMovementTaming = false; //Do we want to move to the target while taming
+let useMovementKilling = true; //Dod we want to move to the target while killing
 
 let wantedStr = 100;
 let wantedDex = 25;
@@ -119,7 +121,10 @@ while (tamingBool) {
   }
   //If we got a list, move to and tame them.
   if (MOBILELIST.length > 0) {
-    MoveToTame(MOBILELIST[0]);
+    if (useMovementTaming
+  ) {
+      MoveToTame(MOBILELIST[0]);
+    }
   }
   if (MOBILELIST.length > 0) {
     TameMobile(MOBILELIST[0]);
@@ -316,7 +321,10 @@ function TameMobile(mobile: InGameObject) {
       else {
         if (mobile.serial != null && mobile.x > 0 && mobile.y > 0)
           console.log("Moving Closer to:", mobile.serial)
-        MoveToTame(mobile);
+        if (useMovementTaming
+      ) {
+          MoveToTame(mobile);
+        }
       }
     }
     else {
@@ -386,7 +394,10 @@ function TameMobile(mobile: InGameObject) {
         console.log("Moving to tame")
         if (MOBILELIST[0].serial != null && mobile.serial != null) {
           if (MOBILELIST[0].serial === mobile.serial) {
-            MoveToTame(mobile)
+            if (useMovementTaming
+          ) {
+              MoveToTame(mobile)
+            }
           }
           else {
             return;
@@ -414,13 +425,15 @@ function KillTame(mobile: InGameObject) {
 
   switch (killTamesWith) {
     //MAGERY
-        case 1: {
+    case 1: {
       let thisMobile = client.findObject(mobile.serial);
       let attacking = true;
 
       while (attacking) {
         if (CheckDistanceFromPlayer(mobile) > 5) {
-          MoveToTame(mobile);
+          if (useMovementKilling) {
+            MoveToTame(mobile);
+          }
         }
         if (thisMobile.x > 0) {
           player.cast(killSpell);
@@ -444,7 +457,9 @@ function KillTame(mobile: InGameObject) {
           if (thisMobile.hits != null) {
             if (thisMobile.x > 0) {
               player.attack(mobile.serial);
-              MoveToTame(thisMobile);
+              if (useMovementKilling) {
+                MoveToTame(thisMobile);
+              }
               sleep(500);
             }
             else {
